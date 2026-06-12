@@ -1,0 +1,3 @@
+# Prevent Jupyter notebooks from being detected as the primary repository language
+*.ipynb linguist-detectable=false
+*.ipynb linguist-vendored=false
