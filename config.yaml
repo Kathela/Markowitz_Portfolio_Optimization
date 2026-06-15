@@ -1,0 +1,71 @@
+# ── Quant Portfolio Optimization System — Configuration ───────────────────────
+
+data:
+  # Asset universe — mix of growth, defensive, commodity, and benchmark
+  tickers:
+    - AAPL    # Apple — Technology
+    - MSFT    # Microsoft — Technology / Cloud
+    - AMZN    # Amazon — E-commerce / Cloud
+    - GOOGL   # Alphabet — Advertising / AI
+    - JNJ     # Johnson & Johnson — Defensive Healthcare
+    - JPM     # JPMorgan Chase — Financials
+    - GLD     # SPDR Gold Trust — Safe-haven Commodity
+    - ^GSPC   # S&P 500 Index — Broad market benchmark
+
+  benchmark: "^GSPC"          # Benchmark ticker for relative metrics
+  start_date: "2021-01-01"    # Historical data start (inclusive)
+  end_date: null              # null = today's date at runtime
+  data_dir: "data"            # Local cache directory
+  cache_enabled: true         # Cache downloads to avoid repeated API calls
+
+optimization:
+  risk_free_rate: 0.05        # 5% — approximate US 10-yr Treasury yield
+  trading_days: 252           # Standard US equity calendar year
+  n_simulations: 10_000       # Monte Carlo portfolio sample count
+
+  # Default weight constraints (long-only, fully invested)
+  constraints:
+    min_weight: 0.0           # Minimum allocation per asset (0 = no minimum)
+    max_weight: 1.0           # Maximum allocation per asset (1 = no maximum)
+    long_only: true           # Prohibit short positions
+
+  target_return: 0.15         # Default target return for constrained optimisation
+
+  # Constrained portfolio bounds (used when constraints are applied)
+  constrained:
+    min_weight: 0.02          # At least 2% in every asset (no near-zero positions)
+    max_weight: 0.40          # No more than 40% in any single asset
+
+backtesting:
+  in_sample_years: 2          # Training window (years) for each rolling fit
+  out_sample_years: 1         # Evaluation window (years) after each fit
+  rebalancing_frequency: "quarterly"   # Options: monthly | quarterly | annually
+  transaction_cost: 0.001     # 10 bps one-way cost per turnover dollar
+
+risk:
+  var_confidence: 0.95        # 95% confidence for VaR and CVaR calculations
+  cvar_confidence: 0.95       # 95% confidence for CVaR
+  rolling_window: 252         # Rolling window (days) for time-varying metrics
+
+visualization:
+  output_dir: "plots"         # Directory for all saved PNG charts
+  dpi: 150                    # Resolution of saved figures
+  figure_style: "seaborn-v0_8-whitegrid"
+
+# Historical crisis periods for stress testing
+stress_tests:
+  periods:
+    - name: "COVID-19 Crash"
+      start: "2020-02-19"
+      end: "2020-03-23"
+      description: "Fastest bear market in history; S&P 500 fell ~34% in 33 days"
+
+    - name: "2022 Bear Market"
+      start: "2022-01-03"
+      end: "2022-10-12"
+      description: "Rate-hike driven bear market; S&P 500 fell ~25%"
+
+    - name: "2018 Q4 Selloff"
+      start: "2018-10-01"
+      end: "2018-12-24"
+      description: "Fed tightening + trade war fears; S&P 500 fell ~20%"
